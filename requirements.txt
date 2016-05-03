@@ -1,0 +1,7 @@
+argparse==1.2.1
+lxml==3.3.3
+nltk==3.1
+numpy==1.8.2
+six==1.5.2
+treetaggerwrapper==2.2.2
+wsgiref==0.1.2

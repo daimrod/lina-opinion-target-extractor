@@ -1,0 +1,82 @@
+* Overview
+
+1. Get the data
+2. Fetch the source code
+3. Setup the proper environment
+4. Configure the templates and the features used
+5. Run!
+
+* The Data
+
+This tool is designed to work with the SEMEVAL ABSA datasets. It has been successfully used on english and french datasets. It should work equally well on other languages assuming that you adapt the features to the language.
+
+You'll need both the data and the tools (java evaluation program).
+
+* The source code
+
+You can either download an archive with the source code or get the distributed archive with the source code and the data as well.
+
+* Setup the proper environment
+
+You'll need the following external tools :
+- Wapiti (required)
+- SENNA (optional)
+- Bonsai (optional)
+- TreeTagger (optional)
+
+Indicate the path of those tools in the data.py file (via the WAPITI_PATH, TREETAGGER_PATH, BONSAI_PATH, and SENNA_PATH variables).
+
+You can also add the resources of your choice (e.g. opinion lexicon, vector space models, etc.)
+
+The environment for the python code is easily installed with virtualenv.
+
+#+BEGIN_SRC sh
+virtualenv .venv . .venv/bin/activate pip install -r requirements.txt
+#+END_SRC
+
+* Configure the templates and the features used
+
+The files en_complet.py and fr_complet.py are examples of how you can define your own toolchain.
+
+They are command line tools that take 2 parameters :
+1. the number of parts (for cross-fold validation)
+2. the workdir in which to work (output directory)
+
+The TRAIN_PATH, TEST_PATH and GOLD_PATH are variables used to specify where to find the data.
+
+TEMPLATES_DIR is the directory in which we store our templates for experimentations.
+
+BUILDS and FEATURES are the code of the toolchains.
+
+BUILDS is an array of tuples (name, template) where name is the name of the build tested (it shows in log) and template the template used to train the model (see templates.py for examples of templates).
+
+A simple template using only the word and the class to predict the labels can be expressed as follow :
+#+BEGIN_SRC python
+BUILDS = [('simple', [('U', 'word', 'X', 'WORD', [0]), 'B'])]
+#+END_SRC
+- POS :: is replaced by the observation to look at, in this case the current token ([0]).
+- WORD :: is replaced by the feature's position in the training file.
+The last feature, 'B', correspond to the previous prediction.
+You can refer to the documentation of Wapiti to see the exact format to express templates.
+
+FEATURES is an array describing the features generated and used by the system. The format is as follow (name, function, [feat1, feat2], input_type, parameters) where :
+- name is the name of the feature or set of features generated (for the log)
+- function is a python function used to generate the feature or set of features
+- [feat1, feat2] is an array with the names of features generated (for the template)
+- input_type is the type of input used by the function (e.g. 'w' for lists of words and 'tokens' for the tokenized text)
+- parameters is a dictionary of optional parameters to send to the function
+
+You can also specify the tokenizer used by the toolchain.
+
+Finally, all those parameters are send to the run.full_pipeline_with_fold function.
+
+* Run!
+:PROPERTIES:
+:ID:       70w8dq20m7h0
+:END:
+
+#+BEGIN_SRC sh
+python en_complet.py 10 expe/run1
+#+END_SRC
+
+The working directory is made anew at each run, so be careful not to lose any data!
